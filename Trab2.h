@@ -5,13 +5,22 @@
 #define CLEAR "clear"
 #define IS_WIN 0
 #endif
+#define MAX_CAND 3
+
+typedef struct
+{
+    char nomeCandidato[50];
+    char partido[7];
+    int ID;
+    int qntdVotos;
+} Candidato;
 
 typedef struct Info_Est
 {
     int voterCard;
     char name[50];
     int vote;
-    int id;
+    // int id;
 } Info;
 
 typedef struct Node_Est
@@ -23,7 +32,7 @@ typedef struct Node_Est
 
 Node *titleTree;
 Node *voteTree;
-//int size = 0;
+Candidato candidatos[3];
 
 // menu function
 void showMenu();
@@ -32,15 +41,17 @@ void showMenu();
 void makeEmptyTree(Node **);
 int insertOnTree(Node **, Info *);
 Info *search(Node *, Info *);
-int removeFromTree(Node **, Info);
+int removeFromTree(Node **, Info *);
 void next(Node **, Node *);
-Node *createNewNode(Info *);
 void inOrder(Node *);
 int treeIsEmpty(Node *);
 void freeTree(Node *);
 
 // info about people
 Info *addNewPerson();
+int addCand(int);
+void printCands(int);
+void printParcial(int);
 
 // extra functions
 void cleanScreen();

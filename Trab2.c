@@ -9,15 +9,16 @@ void showMenu()
     printf("|                                               |\n");
     printf("|              SISTEMA DE VOTACAO               |\n");
     printf("|                                               |\n");
-    printf("|           1) Cadastrar um titulo              |\n");
+    printf("-------------------------------------------------\n");
+    printf("|           1) Cadastrar eleitor/candidato      |\n");
     printf("|           2) Descadastrar um titulo           |\n");
     printf("|           3) Iniciar votacao                  |\n");
     printf("|           4) Votar                            |\n");
     printf("|           5) Retirar voto                     |\n");
     printf("|           6) Resultado parcial                |\n");
-    printf("|           7) Listar numeros e titulos         |\n");
-    printf("|           8) Encerrar programa                |\n");
-    printf("|                                               |\n");
+    printf("|           7) Listar Eleitores                 |\n");
+    printf("|           8) Listar Candidatos                |\n");
+    printf("|           9) Encerrar programa                |\n");
     printf("-------------------------------------------------\n");
 }
 
@@ -53,7 +54,7 @@ Info *search(Node *root, Info *info)
     Info *aux = NULL;
 
     if (root == NULL)
-        return aux;
+        return NULL;
 
     if (info->voterCard < root->info->voterCard)
         return search(root->left, info);
@@ -65,23 +66,25 @@ Info *search(Node *root, Info *info)
     return aux;
 }
 
-int removeFromTree(Node **root, Info info)
+int removeFromTree(Node **root, Info *info)
 {
     Node *aux;
 
     if (*root == NULL)
         return 0;
 
-    if (info.voterCard < (*root)->info->voterCard)
+    if (info->voterCard < (*root)->info->voterCard)
         return removeFromTree(&(*root)->left, info);
 
-    if (info.voterCard > (*root)->info->voterCard)
+    if (info->voterCard > (*root)->info->voterCard)
         return removeFromTree(&(*root)->right, info);
 
     if ((*root)->right == NULL)
     {
         aux = *root;
+        aux->info->vote = -1;
         *root = (*root)->left;
+        *info = *aux->info;
         free(aux);
         return 1;
     }
@@ -89,7 +92,9 @@ int removeFromTree(Node **root, Info info)
     if ((*root)->left == NULL)
     {
         aux = *root;
+        aux->info->vote = -1;
         *root = (*root)->right;
+        *info = *aux->info;
         free(aux);
         return 1;
     }
@@ -127,9 +132,45 @@ Info *addNewPerson()
     {
         printf("Digite o numero do titulo: ");
         scanf("%d", &newPerson->voterCard);
-    } while (newPerson->voterCard < 1);
+
+        if (newPerson->voterCard < 1 || search(titleTree, newPerson))
+        {
+            printf("\nNumero de titulo invalido ou ja esta cadastrado. Tente novamente...\n\n");
+        }
+
+    } while (newPerson->voterCard < 1 || search(titleTree, newPerson));
+
+    newPerson->vote = -1;
 
     return newPerson;
+}
+
+int addCand(int qntdCand)
+{
+    if (qntdCand >= MAX_CAND)
+    {
+        printf("Numero maximo de candidatos ja cadastrados...\n");
+        return qntdCand;
+    }
+    else
+    {
+        fflush(stdin);
+        printf("\nQual e o seu nome: ");
+        fgets(candidatos[qntdCand].nomeCandidato, 50, stdin);
+        candidatos[qntdCand].nomeCandidato[strcspn(candidatos[qntdCand].nomeCandidato, "\n")] = 0;
+
+        fflush(stdin);
+        printf("Qual e o seu partido: ");
+        fgets(candidatos[qntdCand].partido, 7, stdin);
+        candidatos[qntdCand].partido[strcspn(candidatos[qntdCand].partido, "\n")] = 0;
+
+        candidatos[qntdCand].qntdVotos = 0;
+        candidatos[qntdCand].ID = qntdCand + 1;
+
+        printf("\nCandidato '%s' do partido '%s' foi cadastrado...\n\n", candidatos[qntdCand].nomeCandidato, candidatos[qntdCand].partido);
+
+        return 1 + qntdCand;
+    }
 }
 
 void inOrder(Node *root)
@@ -137,8 +178,27 @@ void inOrder(Node *root)
     if (root)
     {
         inOrder(root->left);
-        printf("Nome: %s - Numero do titulo: %d\n", root->info->name, root->info->voterCard);
+        if (search(voteTree, root->info))
+            printf("Nome: %s\nNumero do titulo: %d\nJa votou: Sim\n\n", root->info->name, root->info->voterCard);
+        else
+            printf("Nome: %s\nNumero do titulo: %d\nJa votou: Nao\n\n", root->info->name, root->info->voterCard);
         inOrder(root->right);
+    }
+}
+
+void printCands(int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        printf("Canditado %d:\n   Nome: %s\n   Partido: %s\n   ID: %d\n\n", i + 1, candidatos[i].nomeCandidato, candidatos[i].partido, candidatos[i].ID);
+    }
+}
+
+void printParcial(int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        printf("Canditado %d:\n   Nome: %s\n   Partido: %s\n   Votos: %d\n\n", i + 1, candidatos[i].nomeCandidato, candidatos[i].partido, candidatos[i].qntdVotos);
     }
 }
 
@@ -153,7 +213,7 @@ void freeTree(Node *root)
     {
         freeTree(root->left);
         freeTree(root->right);
-        //free(root->info);
+        // free(root->info);
         free(root);
     }
 }
