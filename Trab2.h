@@ -40,7 +40,7 @@ void showMenu();
 // tree functions
 void makeEmptyTree(Node **);
 int insertOnTree(Node **, Info *);
-Info *search(Node *, Info *);
+Info *search(Node *, int);
 int removeFromTree(Node **, Info *);
 void next(Node **, Node *);
 void inOrder(Node *);

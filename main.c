@@ -6,7 +6,7 @@
 int main()
 {
 
-    int option, isCand, qntdCand = 0, vote;
+    int option, isCand, qntdCand = 0, voteCard;
     Info *temp, aux;
 
     makeEmptyTree(&titleTree);
@@ -55,8 +55,7 @@ int main()
             printf("Digite o numero do titulo a ser removido: ");
             scanf("%d", &aux.voterCard);
 
-            temp = search(titleTree, &aux);
-            if (temp)
+            if (search(titleTree, aux.voterCard))
             {
                 removeFromTree(&titleTree, temp);
                 printf("\n\n%s foi removido(a)!\n", temp->name);
@@ -82,11 +81,15 @@ int main()
             {
                 cleanScreen();
                 printf("Por favor, digite o numero do seu titulo: ");
-                scanf("%d", &aux.voterCard);
+                scanf("%d", &voteCard);
 
-                if (search(titleTree, &aux)) // verifica se o titulo digitado esta na arvore de titulos
+                if (search(titleTree, voteCard)) // verifica se o titulo digitado esta na arvore de titulos
                 {
-                    if (!search(voteTree, &aux)) // se estiver, verifica se a pessoa ainda n votou
+                    temp = (Info*)malloc(sizeof (Info));
+                    temp->voterCard = voteCard;
+
+                    pauseExecution();
+                    if (!search(voteTree, temp->voterCard)) // se estiver, verifica se a pessoa ainda n votou
                     {
                         cleanScreen();
                         printf("---------------------- CANDIDATOS ----------------------\n\n");
@@ -95,14 +98,15 @@ int main()
                         printf("Digite o ID do candidato desejado: ");
                         do
                         {
-                            scanf("%d", &aux.vote);
-                            if (aux.vote < 1 || aux.vote > qntdCand)
+                            scanf("%d", &temp->vote);
+                            if (temp->vote < 1 || temp->vote > qntdCand)
                                 printf("ID invalido, tente novamente: ");
-                        } while (aux.vote < 1 || aux.vote > qntdCand);
+                        } while (temp->vote < 1 || temp->vote > qntdCand);
 
-                        candidatos[aux.vote - 1].qntdVotos++;
-                        insertOnTree(&voteTree, &aux);
-                        printf("\nVoce votou no(a) candidato(a) %s\n\n", candidatos[aux.vote - 1].nomeCandidato);
+                        candidatos[temp->vote - 1].qntdVotos++;
+
+                        insertOnTree(&voteTree, temp);
+                        printf("\nVoce votou no(a) candidato(a) %s\n\n", candidatos[temp->vote - 1].nomeCandidato);
                         pauseExecution();
                     }
                     else
@@ -113,7 +117,7 @@ int main()
                 }
                 else
                 {
-                    printf("Titulo %d nao foi encontrado...\n", aux.voterCard);
+                    printf("Titulo %d nao foi encontrado...\n", voteCard);
                 }
             }
             else
@@ -130,13 +134,13 @@ int main()
 
             // aux = *(search(titleTree, &aux));
 
-            if (!search(titleTree, &aux))
+            if (!search(titleTree, aux.voterCard))
             {
                 printf("O titulo %d nao foi cadastrado...\n");
             }
             else
             {
-                if (!search(voteTree, &aux))
+                if (!search(voteTree, aux.voterCard))
                 {
                     printf("Voce ainda nao votou, nao e possivel retirar o voto...\n");
                 }
@@ -146,21 +150,6 @@ int main()
                     removeFromTree(&voteTree, &aux);
                     printf("%s acabou de retirar seu voto.\n\n", aux.name);
                 }
-                // if (search(voteTree, &aux))
-                // {
-                //     printf("achei na arvore de votos");
-                //     pauseExecution();
-                //     // if (aux.vote == qntdCand)
-                //     // {
-                //     //     printf("voto aqui: %d\n");
-                //     //     pauseExecution();
-                //     // }
-                // }
-                // else
-                // {
-                //     printf("\nTitulo %d nao encontrado ou ainda nao votou\n\n", aux.voterCard);
-                //     pauseExecution();
-                // }
             }
 
             pauseExecution();
@@ -199,7 +188,6 @@ int main()
             printf("\n-------------------------------------------------------\n\n");
             pauseExecution();
             break;
-
         default:
             system(CLEAR);
             break;
