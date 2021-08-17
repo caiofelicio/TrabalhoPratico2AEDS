@@ -1,45 +1,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "Trab2.h"
+#include "trab2.h"
 
-void showMenu()
-{
+void showMenu() {
     printf("-------------------------------------------------\n");
     printf("|                                               |\n");
     printf("|              SISTEMA DE VOTACAO               |\n");
     printf("|                                               |\n");
     printf("-------------------------------------------------\n");
-    printf("|           1) Cadastrar eleitor/candidato      |\n");
+    printf("|           1) Cadastrar titulo                 |\n");
     printf("|           2) Descadastrar um titulo           |\n");
     printf("|           3) Iniciar votacao                  |\n");
     printf("|           4) Votar                            |\n");
     printf("|           5) Retirar voto                     |\n");
     printf("|           6) Resultado parcial                |\n");
     printf("|           7) Listar Eleitores                 |\n");
-    printf("|           8) Listar Candidatos                |\n");
-    printf("|           9) Encerrar programa                |\n");
+    printf("|           8) Encerrar programa                |\n");
     printf("-------------------------------------------------\n");
 }
 
-void makeEmptyTree(Node **root)
-{
+void makeEmptyTree(Node **root) {
     *root = NULL;
 }
 
-int insertOnTree(Node **root, Info *info)
-{
+int insertOnTree(Node **root, Info *info) {
 
-    if (*root == NULL)
-    {
-        *root = (Node *)malloc(sizeof(Node));
+    if (*root == NULL) {
+        *root = (Node *) malloc(sizeof(Node));
         (*root)->info = info;
         (*root)->left = NULL;
         (*root)->right = NULL;
         return 1;
-    }
-    else
-    {
+    } else {
         if (info->voterCard < (*root)->info->voterCard)
             return insertOnTree(&((*root)->left), info);
 
@@ -49,8 +42,7 @@ int insertOnTree(Node **root, Info *info)
     return 0;
 }
 
-Info *search(Node *root, int info)
-{
+Info *search(Node *root, int info) {
     Info *aux = NULL;
 
     if (root == NULL)
@@ -66,8 +58,7 @@ Info *search(Node *root, int info)
     return aux;
 }
 
-int removeFromTree(Node **root, Info *info)
-{
+int removeFromTree(Node **root, Info *info) {
     Node *aux;
 
     if (*root == NULL)
@@ -79,20 +70,18 @@ int removeFromTree(Node **root, Info *info)
     if (info->voterCard > (*root)->info->voterCard)
         return removeFromTree(&(*root)->right, info);
 
-    if ((*root)->right == NULL)
-    {
+    if ((*root)->right == NULL) {
         aux = *root;
-        aux->info->vote = -1;
+        aux->info->hasVoted = 0;
         *root = (*root)->left;
         *info = *aux->info;
         free(aux);
         return 1;
     }
 
-    if ((*root)->left == NULL)
-    {
+    if ((*root)->left == NULL) {
         aux = *root;
-        aux->info->vote = -1;
+        aux->info->hasVoted = 0;
         *root = (*root)->right;
         *info = *aux->info;
         free(aux);
@@ -103,12 +92,10 @@ int removeFromTree(Node **root, Info *info)
     return 1;
 }
 
-void next(Node **root, Node *no)
-{
+void next(Node **root, Node *no) {
     Node *aux;
 
-    if ((*root)->left != NULL)
-    {
+    if ((*root)->left != NULL) {
         next(&(*root)->left, no);
         return;
     }
@@ -119,117 +106,87 @@ void next(Node **root, Node *no)
     free(aux);
 }
 
-Info *addNewPerson()
-{
-    Info *newPerson = (Info *)malloc(sizeof(Info));
+Info *addNewPerson() {
+    Info *newPerson = (Info *) malloc(sizeof(Info));
 
     fflush(stdin);
     printf("\nDigite seu nome: ");
     fgets(newPerson->name, 50, stdin);
-    newPerson->name[strcspn(newPerson->name, "\n")] = 0;
+    newPerson->name[strcspn(newPerson->name, "\n")] = 0; // removendo o caractere \n
 
-    do
-    {
+    do {
         printf("Digite o numero do titulo: ");
         scanf("%d", &newPerson->voterCard);
 
-        if (newPerson->voterCard < 1 || search(titleTree, newPerson->voterCard))
-        {
+        if (newPerson->voterCard < 1 || search(titleTree, newPerson->voterCard)) {
             printf("\nNumero de titulo invalido ou ja esta cadastrado. Tente novamente...\n\n");
         }
 
     } while (newPerson->voterCard < 1 || search(titleTree, newPerson->voterCard));
 
-    newPerson->vote = -1;
-
+    newPerson->hasVoted = 0;
+    newPerson->vote = 0;
+    newPerson->qntdVotes = 0;
     return newPerson;
 }
 
-int addCand(int qntdCand)
-{
-    if (qntdCand >= MAX_CAND)
-    {
-        printf("Numero maximo de candidatos ja cadastrados...\n");
-        return qntdCand;
+Info checkWinner(Node *root) {
+    static int winnerTitleNumber = 0;
+    static Info winner;
+
+    winner.qntdVotes = -1;
+
+    if (root) {
+        checkWinner(root->left);
+        checkWinner(root->right);
+        if (root->info->qntdVotes > winner.qntdVotes)
+            winner = *(root->info);
     }
-    else
-    {
-        fflush(stdin);
-        printf("\nQual e o seu nome: ");
-        fgets(candidatos[qntdCand].nomeCandidato, 50, stdin);
-        candidatos[qntdCand].nomeCandidato[strcspn(candidatos[qntdCand].nomeCandidato, "\n")] = 0;
 
-        fflush(stdin);
-        printf("Qual e o seu partido: ");
-        fgets(candidatos[qntdCand].partido, 7, stdin);
-        candidatos[qntdCand].partido[strcspn(candidatos[qntdCand].partido, "\n")] = 0;
-
-        candidatos[qntdCand].qntdVotos = 0;
-        candidatos[qntdCand].ID = qntdCand + 1;
-
-        printf("\nCandidato '%s' do partido '%s' foi cadastrado...\n\n", candidatos[qntdCand].nomeCandidato, candidatos[qntdCand].partido);
-
-        return 1 + qntdCand;
-    }
+    return winner;
 }
 
-void inOrder(Node *root)
-{
-    if (root)
-    {
+void inOrder(Node *root) {
+    if (root) {
         inOrder(root->left);
-        if (search(voteTree, root->info->voterCard))
-            printf("Nome: %s\nNumero do titulo: %d\nJa votou: Sim\n\n", root->info->name, root->info->voterCard);
+        if(root->info->hasVoted)
+            printf("\nNome: %s\nNumero do titulo: %d\nJa votou: Sim\n", root->info->name, root->info->voterCard);
         else
-            printf("Nome: %s\nNumero do titulo: %d\nJa votou: Nao\n\n", root->info->name, root->info->voterCard);
+            printf("\nNome: %s\nNumero do titulo: %d\nJa votou: Nao\n", root->info->name, root->info->voterCard);
         inOrder(root->right);
     }
 }
 
-void printCands(int size)
-{
-    for (int i = 0; i < size; i++)
-    {
-        printf("Canditado %d:\n   Nome: %s\n   Partido: %s\n   ID: %d\n\n", i + 1, candidatos[i].nomeCandidato, candidatos[i].partido, candidatos[i].ID);
+void printParcial(Node *root) {
+    if (root) {
+        printParcial(root->left);
+        printParcial(root->right);
+        printf("\nNome: %s\nNumero de votos: %d\n", root->info->name, root->info->qntdVotes);
     }
 }
 
-void printParcial(int size)
-{
-    for (int i = 0; i < size; i++)
-    {
-        printf("Canditado %d:\n   Nome: %s\n   Partido: %s\n   Votos: %d\n\n", i + 1, candidatos[i].nomeCandidato, candidatos[i].partido, candidatos[i].qntdVotos);
-    }
-}
-
-int treeIsEmpty(Node *tree)
-{
+int treeIsEmpty(Node *tree) {
     return tree == NULL;
 }
 
-void freeTree(Node *root)
-{
-    if (root)
-    {
+void freeTree(Node *root) {
+    if (root) {
         freeTree(root->left);
         freeTree(root->right);
-        // free(root->info);
+        free(root->info);
         free(root);
     }
 }
 
 // extra functions
-void cleanScreen()
-{
+void cleanScreen() {
     system(CLEAR);
 }
 
-void pauseExecution()
-{
-    if (IS_WIN)
+void pauseExecution() {
+    if (IS_WINDOWS)
         system("pause");
-    else
-    {
+    else {
         printf("Pressione ENTER para voltar ao menu...");
         getchar();
     }

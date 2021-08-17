@@ -1,26 +1,18 @@
 #ifdef _WIN32 /*define o comando de limpar a tela com base no Sistema Operacional.*/
 #define CLEAR "cls"
-#define IS_WIN 1
+#define IS_WINDOWS 1
 #else
 #define CLEAR "clear"
-#define IS_WIN 0
 #endif
 #define MAX_CAND 3
-
-typedef struct
-{
-    char nomeCandidato[50];
-    char partido[7];
-    int ID;
-    int qntdVotos;
-} Candidato;
 
 typedef struct Info_Est
 {
     int voterCard;
     char name[50];
+    int hasVoted;
     int vote;
-    // int id;
+    int qntdVotes;
 } Info;
 
 typedef struct Node_Est
@@ -32,7 +24,6 @@ typedef struct Node_Est
 
 Node *titleTree;
 Node *voteTree;
-Candidato candidatos[3];
 
 // menu function
 void showMenu();
@@ -46,12 +37,11 @@ void next(Node **, Node *);
 void inOrder(Node *);
 int treeIsEmpty(Node *);
 void freeTree(Node *);
+Info checkWinner(Node*);
 
 // info about people
 Info *addNewPerson();
-int addCand(int);
-void printCands(int);
-void printParcial(int);
+void printParcial(Node *);
 
 // extra functions
 void cleanScreen();
