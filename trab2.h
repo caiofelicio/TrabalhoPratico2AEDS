@@ -3,6 +3,7 @@
 #define IS_WINDOWS 1
 #else
 #define CLEAR "clear"
+#define IS_WINDOWS 0
 #endif
 #define MAX_CAND 3
 
@@ -37,7 +38,7 @@ void next(Node **, Node *);
 void inOrder(Node *);
 int treeIsEmpty(Node *);
 void freeTree(Node *);
-Info checkWinner(Node*);
+Info checkWinner(Node *);
 
 // info about people
 Info *addNewPerson();

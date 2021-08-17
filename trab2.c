@@ -3,7 +3,8 @@
 #include <string.h>
 #include "trab2.h"
 
-void showMenu() {
+void showMenu()
+{
     printf("-------------------------------------------------\n");
     printf("|                                               |\n");
     printf("|              SISTEMA DE VOTACAO               |\n");
@@ -20,19 +21,24 @@ void showMenu() {
     printf("-------------------------------------------------\n");
 }
 
-void makeEmptyTree(Node **root) {
+void makeEmptyTree(Node **root)
+{
     *root = NULL;
 }
 
-int insertOnTree(Node **root, Info *info) {
+int insertOnTree(Node **root, Info *info)
+{
 
-    if (*root == NULL) {
-        *root = (Node *) malloc(sizeof(Node));
+    if (*root == NULL)
+    {
+        *root = (Node *)malloc(sizeof(Node));
         (*root)->info = info;
         (*root)->left = NULL;
         (*root)->right = NULL;
         return 1;
-    } else {
+    }
+    else
+    {
         if (info->voterCard < (*root)->info->voterCard)
             return insertOnTree(&((*root)->left), info);
 
@@ -42,7 +48,8 @@ int insertOnTree(Node **root, Info *info) {
     return 0;
 }
 
-Info *search(Node *root, int info) {
+Info *search(Node *root, int info)
+{
     Info *aux = NULL;
 
     if (root == NULL)
@@ -58,7 +65,8 @@ Info *search(Node *root, int info) {
     return aux;
 }
 
-int removeFromTree(Node **root, Info *info) {
+int removeFromTree(Node **root, Info *info)
+{
     Node *aux;
 
     if (*root == NULL)
@@ -70,7 +78,8 @@ int removeFromTree(Node **root, Info *info) {
     if (info->voterCard > (*root)->info->voterCard)
         return removeFromTree(&(*root)->right, info);
 
-    if ((*root)->right == NULL) {
+    if ((*root)->right == NULL)
+    {
         aux = *root;
         aux->info->hasVoted = 0;
         *root = (*root)->left;
@@ -79,7 +88,8 @@ int removeFromTree(Node **root, Info *info) {
         return 1;
     }
 
-    if ((*root)->left == NULL) {
+    if ((*root)->left == NULL)
+    {
         aux = *root;
         aux->info->hasVoted = 0;
         *root = (*root)->right;
@@ -92,10 +102,12 @@ int removeFromTree(Node **root, Info *info) {
     return 1;
 }
 
-void next(Node **root, Node *no) {
+void next(Node **root, Node *no)
+{
     Node *aux;
 
-    if ((*root)->left != NULL) {
+    if ((*root)->left != NULL)
+    {
         next(&(*root)->left, no);
         return;
     }
@@ -106,19 +118,22 @@ void next(Node **root, Node *no) {
     free(aux);
 }
 
-Info *addNewPerson() {
-    Info *newPerson = (Info *) malloc(sizeof(Info));
+Info *addNewPerson()
+{
+    Info *newPerson = (Info *)malloc(sizeof(Info));
 
-    fflush(stdin);
+    setbuf(stdin, NULL);
     printf("\nDigite seu nome: ");
     fgets(newPerson->name, 50, stdin);
     newPerson->name[strcspn(newPerson->name, "\n")] = 0; // removendo o caractere \n
 
-    do {
+    do
+    {
         printf("Digite o numero do titulo: ");
         scanf("%d", &newPerson->voterCard);
 
-        if (newPerson->voterCard < 1 || search(titleTree, newPerson->voterCard)) {
+        if (newPerson->voterCard < 1 || search(titleTree, newPerson->voterCard))
+        {
             printf("\nNumero de titulo invalido ou ja esta cadastrado. Tente novamente...\n\n");
         }
 
@@ -130,13 +145,15 @@ Info *addNewPerson() {
     return newPerson;
 }
 
-Info checkWinner(Node *root) {
+Info checkWinner(Node *root)
+{
     static int winnerTitleNumber = 0;
     static Info winner;
 
     winner.qntdVotes = -1;
 
-    if (root) {
+    if (root)
+    {
         checkWinner(root->left);
         checkWinner(root->right);
         if (root->info->qntdVotes > winner.qntdVotes)
@@ -146,10 +163,12 @@ Info checkWinner(Node *root) {
     return winner;
 }
 
-void inOrder(Node *root) {
-    if (root) {
+void inOrder(Node *root)
+{
+    if (root)
+    {
         inOrder(root->left);
-        if(root->info->hasVoted)
+        if (root->info->hasVoted)
             printf("\nNome: %s\nNumero do titulo: %d\nJa votou: Sim\n", root->info->name, root->info->voterCard);
         else
             printf("\nNome: %s\nNumero do titulo: %d\nJa votou: Nao\n", root->info->name, root->info->voterCard);
@@ -157,20 +176,25 @@ void inOrder(Node *root) {
     }
 }
 
-void printParcial(Node *root) {
-    if (root) {
+void printParcial(Node *root)
+{
+    if (root)
+    {
         printParcial(root->left);
         printParcial(root->right);
         printf("\nNome: %s\nNumero de votos: %d\n", root->info->name, root->info->qntdVotes);
     }
 }
 
-int treeIsEmpty(Node *tree) {
+int treeIsEmpty(Node *tree)
+{
     return tree == NULL;
 }
 
-void freeTree(Node *root) {
-    if (root) {
+void freeTree(Node *root)
+{
+    if (root)
+    {
         freeTree(root->left);
         freeTree(root->right);
         free(root->info);
@@ -179,15 +203,19 @@ void freeTree(Node *root) {
 }
 
 // extra functions
-void cleanScreen() {
+void cleanScreen()
+{
     system(CLEAR);
 }
 
-void pauseExecution() {
+void pauseExecution()
+{
     if (IS_WINDOWS)
         system("pause");
-    else {
+    else
+    {
         printf("Pressione ENTER para voltar ao menu...");
+        setbuf(stdin, NULL);
         getchar();
     }
 }
