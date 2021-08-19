@@ -180,9 +180,9 @@ void printParcial(Node *root)
 {
     if (root)
     {
-        printParcial(root->left);
         printParcial(root->right);
         printf("\nNome: %s\nNumero de votos: %d\n", root->info->name, root->info->qntdVotes);
+        printParcial(root->left);
     }
 }
 
@@ -196,9 +196,23 @@ void freeTree(Node *root)
     if (root)
     {
         freeTree(root->left);
-        freeTree(root->right);
-        free(root->info);
+        //        freeTree(root->right);
+        //        if((root->info))
+        //            free(root->info);
         free(root);
+    }
+}
+
+void resetData(Node **root)
+{
+    if (*root)
+    {
+        resetData(&(*root)->left);
+        resetData(&(*root)->right);
+
+        (*root)->info->qntdVotes = 0;
+        (*root)->info->hasVoted = 0;
+        (*root)->info->vote = 0;
     }
 }
 

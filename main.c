@@ -8,6 +8,7 @@ int main()
     int option = 0, voteCard = 0, hasVotation = 0;
 
     Info *aux = (Info *)malloc(sizeof(Info)), *temp = (Info *)malloc(sizeof(Info)), copy;
+    Info winner;
 
     makeEmptyTree(&titleTree);
     makeEmptyTree(&voteTree);
@@ -59,18 +60,17 @@ int main()
 
             if (hasVotation)
             {
-                printf("Uma nova votacao foi iniciada\nOs dados da antiga votacao foram perdidos\n\n");
-                printf("O vencendor da antiga votacao e '%s' com %d votos.\n", checkWinner(titleTree).name,
-                       checkWinner(titleTree).qntdVotes);
-                freeTree(titleTree);
+                winner = checkWinner(titleTree);
+                printf("\nUma nova votacao foi iniciada\nOs dados da antiga votacao foram perdidos\n\n");
+                printf("O vencendor da antiga votacao e '%s' com %d votos.\n", winner.name, winner.qntdVotes);
+                resetData(&titleTree);
                 freeTree(voteTree);
-                makeEmptyTree(&titleTree);
                 makeEmptyTree(&voteTree);
             }
             else
             {
                 hasVotation = 1;
-                printf("Uma nova votacao foi iniciada...\n");
+                printf("\nUma nova votacao foi iniciada...\n");
             }
 
             pauseExecution();
@@ -80,7 +80,7 @@ int main()
         case 4:
             if (!hasVotation)
             {
-                printf("Inicie uma votacao antes de comecar a votar...\n");
+                printf("\nInicie uma votacao antes de comecar a votar...\n");
             }
             else
             {
@@ -106,7 +106,7 @@ int main()
                             temp = search(titleTree, voteCard);
                             if (!temp)
                             {
-                                printf("Numero invalido, tente novamente: ");
+                                printf("Nenhuma pessoa encontrada com o titulo %d.\nTente novamente: ", voteCard);
                             }
                         } while (!temp);
                         temp->qntdVotes++;
@@ -133,6 +133,7 @@ int main()
 
         case 5:
             cleanScreen();
+            setbuf(stdin, NULL);
             printf("Por favor, digite o numero do seu titulo: ");
             scanf("%d", &voteCard);
 
@@ -145,24 +146,20 @@ int main()
             else
             {
                 if (!search(voteTree, voteCard))
-                { // se a pessoa ainda nao votou
+                {
+                    // se a pessoa ainda nao votou
                     printf("Voce ainda nao votou, nao e possivel retirar o voto...\n");
                 }
                 else
-                { // se tiver votado
+                {
+                    // se tiver votado
                     temp->hasVoted = 0;
-                    temp->vote = 0;
                     voteCard = temp->vote;
+                    aux = search(titleTree, voteCard);
+                    aux->qntdVotes--;
+                    temp->vote = 0;
                     printf("\n%s acabou de retirar seu voto.\n\n", temp->name);
                     removeFromTree(&voteTree, temp);
-
-                    aux = search(titleTree, voteCard);
-                    if (aux)
-                    {
-                        removeFromTree(&titleTree, aux);
-                        aux->qntdVotes--;
-                        insertOnTree(&titleTree, aux);
-                    }
                 }
             }
             temp = NULL;
@@ -200,9 +197,9 @@ int main()
 
     free(temp);
     free(aux);
-    if (titleTree)
+    if (!treeIsEmpty(titleTree))
         freeTree(titleTree);
-    if (voteTree)
+    if (!treeIsEmpty(voteTree))
         freeTree(voteTree);
 
     return 0;

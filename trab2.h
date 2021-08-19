@@ -5,7 +5,6 @@
 #define CLEAR "clear"
 #define IS_WINDOWS 0
 #endif
-#define MAX_CAND 3
 
 typedef struct Info_Est
 {
@@ -39,6 +38,7 @@ void inOrder(Node *);
 int treeIsEmpty(Node *);
 void freeTree(Node *);
 Info checkWinner(Node *);
+void resetData(Node **root);
 
 // info about people
 Info *addNewPerson();
