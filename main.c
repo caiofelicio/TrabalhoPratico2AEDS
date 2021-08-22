@@ -4,11 +4,12 @@
 
 int main()
 {
+    /* definindo variáveis utilizadas */
+    int option = 0, voteCard = 0, hasVotation = 0, count = 0, index = 0;
 
-    int option = 0, voteCard = 0, hasVotation = 0;
-
-    Info *aux = (Info *)malloc(sizeof(Info)), *temp = (Info *)malloc(sizeof(Info)), copy;
-    Info winner;
+    Info *aux = (Info *)malloc(sizeof(Info));
+    Info *temp = (Info *)malloc(sizeof(Info));
+    Info *arrayAux = NULL;
 
     makeEmptyTree(&titleTree);
     makeEmptyTree(&voteTree);
@@ -24,6 +25,7 @@ int main()
         switch (option)
         {
         case 1:
+        {
             temp = addNewPerson();
             insertOnTree(&titleTree, temp);
             printf("\nO eleitor '%s' foi adicionado...\n", temp->name);
@@ -31,8 +33,9 @@ int main()
             cleanScreen();
             temp = NULL;
             break;
-
+        }
         case 2:
+        {
             cleanScreen();
             printf("-------------------------------------------------------\n\n");
             inOrder(titleTree);
@@ -55,14 +58,12 @@ int main()
             }
             temp = NULL;
             break;
-
+        }
         case 3:
-
+        {
             if (hasVotation)
             {
-                winner = checkWinner(titleTree);
                 printf("\nUma nova votacao foi iniciada\nOs dados da antiga votacao foram perdidos\n\n");
-                printf("O vencendor da antiga votacao e '%s' com %d votos.\n", winner.name, winner.qntdVotes);
                 resetData(&titleTree);
                 freeTree(voteTree);
                 makeEmptyTree(&voteTree);
@@ -72,12 +73,11 @@ int main()
                 hasVotation = 1;
                 printf("\nUma nova votacao foi iniciada...\n");
             }
-
             pauseExecution();
-
             break;
-
+        }
         case 4:
+        {
             if (!hasVotation)
             {
                 printf("\nInicie uma votacao antes de comecar a votar...\n");
@@ -112,10 +112,9 @@ int main()
                         temp->qntdVotes++;
                         aux->vote = voteCard;
                         aux->hasVoted = 1;
-
-                        copy = *aux;
-                        insertOnTree(&voteTree, &copy);
+                        insertOnTree(&voteTree, aux);
                         printf("Voce votou em '%s'\n", temp->name);
+                        aux = NULL;
                     }
                     else
                     {
@@ -130,8 +129,11 @@ int main()
             pauseExecution();
             temp = NULL;
             break;
-
+        }
         case 5:
+        {
+            Info aux2;
+
             cleanScreen();
             setbuf(stdin, NULL);
             printf("Por favor, digite o numero do seu titulo: ");
@@ -152,33 +154,49 @@ int main()
                 }
                 else
                 {
-                    // se tiver votado
+                    // se tiver votacao
                     temp->hasVoted = 0;
                     voteCard = temp->vote;
                     aux = search(titleTree, voteCard);
-                    aux->qntdVotes--;
                     temp->vote = 0;
+                    aux2 = *aux;
+                    aux2.qntdVotes--;
+                    removeFromTree(&titleTree, aux);
+                    insertOnTree(&titleTree, &aux2);
+
                     printf("\n%s acabou de retirar seu voto.\n\n", temp->name);
                     removeFromTree(&voteTree, temp);
                 }
             }
             temp = NULL;
             pauseExecution();
-
             break;
-
+        }
         case 6:
+        {
             cleanScreen();
             printf("---------------------- RESULTADO PARCIAL ----------------------\n\n");
             if (!treeIsEmpty(titleTree))
-                printParcial(titleTree);
+            {
+                count = getNumberOfNodes(titleTree);
+                arrayAux = (Info *)malloc(count * sizeof(Info));
+                copyTreeToArray(titleTree, arrayAux, &index);
+                sortArrayByNumberOfVotes(arrayAux, count);
+                for (int i = 0; i < count; i++)
+                {
+                    printf("\nNome: %s\nNumero de votos: %d\n", arrayAux[i].name, arrayAux[i].qntdVotes);
+                }
+                index = 0;
+                free(arrayAux);
+            }
             else
                 printf("NAO EXISTE NENHUMA VOTACAO EM ANDAMENTO...\n");
             printf("\n-------------------------------------------------------\n\n");
             pauseExecution();
             break;
-
+        }
         case 7:
+        {
             cleanScreen();
             printf("---------------------- ELEITORES ----------------------\n");
             if (!treeIsEmpty(titleTree))
@@ -188,6 +206,7 @@ int main()
             printf("\n-------------------------------------------------------\n\n");
             pauseExecution();
             break;
+        }
 
         default:
             system(CLEAR);

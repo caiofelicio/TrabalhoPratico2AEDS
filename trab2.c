@@ -28,7 +28,6 @@ void makeEmptyTree(Node **root)
 
 int insertOnTree(Node **root, Info *info)
 {
-
     if (*root == NULL)
     {
         *root = (Node *)malloc(sizeof(Node));
@@ -118,6 +117,55 @@ void next(Node **root, Node *no)
     free(aux);
 }
 
+void inOrder(Node *root)
+{
+    if (root)
+    {
+        inOrder(root->left);
+        if (root->info->hasVoted)
+            printf("\nNome: %s\nNumero do titulo: %d\nJa votou: Sim\n", root->info->name, root->info->voterCard);
+        else
+            printf("\nNome: %s\nNumero do titulo: %d\nJa votou: Nao\n", root->info->name, root->info->voterCard);
+        inOrder(root->right);
+    }
+}
+
+int treeIsEmpty(Node *tree)
+{
+    return tree == NULL;
+}
+
+void resetData(Node **root)
+{
+    if (*root)
+    {
+        resetData(&(*root)->left);
+        resetData(&(*root)->right);
+
+        (*root)->info->qntdVotes = 0;
+        (*root)->info->hasVoted = 0;
+        (*root)->info->vote = 0;
+    }
+}
+
+int getNumberOfNodes(Node *root)
+{
+    if (root)
+        return 1 + getNumberOfNodes(root->left) + getNumberOfNodes(root->right);
+    return 0;
+}
+
+void freeTree(Node *root)
+{
+    if (root)
+    {
+        freeTree(root->left);
+        freeTree(root->right);
+        free(root);
+    }
+}
+
+// add person funcion
 Info *addNewPerson()
 {
     Info *newPerson = (Info *)malloc(sizeof(Info));
@@ -145,78 +193,37 @@ Info *addNewPerson()
     return newPerson;
 }
 
-Info checkWinner(Node *root)
-{
-    static int winnerTitleNumber = 0;
-    static Info winner;
-
-    winner.qntdVotes = -1;
-
-    if (root)
-    {
-        checkWinner(root->left);
-        checkWinner(root->right);
-        if (root->info->qntdVotes > winner.qntdVotes)
-            winner = *(root->info);
-    }
-
-    return winner;
-}
-
-void inOrder(Node *root)
-{
-    if (root)
-    {
-        inOrder(root->left);
-        if (root->info->hasVoted)
-            printf("\nNome: %s\nNumero do titulo: %d\nJa votou: Sim\n", root->info->name, root->info->voterCard);
-        else
-            printf("\nNome: %s\nNumero do titulo: %d\nJa votou: Nao\n", root->info->name, root->info->voterCard);
-        inOrder(root->right);
-    }
-}
-
-void printParcial(Node *root)
-{
-    if (root)
-    {
-        printParcial(root->right);
-        printf("\nNome: %s\nNumero de votos: %d\n", root->info->name, root->info->qntdVotes);
-        printParcial(root->left);
-    }
-}
-
-int treeIsEmpty(Node *tree)
-{
-    return tree == NULL;
-}
-
-void freeTree(Node *root)
-{
-    if (root)
-    {
-        freeTree(root->left);
-        //        freeTree(root->right);
-        //        if((root->info))
-        //            free(root->info);
-        free(root);
-    }
-}
-
-void resetData(Node **root)
-{
-    if (*root)
-    {
-        resetData(&(*root)->left);
-        resetData(&(*root)->right);
-
-        (*root)->info->qntdVotes = 0;
-        (*root)->info->hasVoted = 0;
-        (*root)->info->vote = 0;
-    }
-}
-
 // extra functions
+void copyTreeToArray(Node *root, Info *array, int *index)
+{
+    if (root == NULL)
+        return;
+
+    array[*index] = *root->info;
+    ++*index;
+
+    copyTreeToArray(root->left, array, index);
+    copyTreeToArray(root->right, array, index);
+}
+
+void sortArrayByNumberOfVotes(Info *array, int size)
+{
+    int i, j;
+    Info aux;
+
+    for (i = 1; i < size; i++)
+    {
+        aux = array[i];
+        j = i;
+        while ((j > 0) && aux.qntdVotes > array[j - 1].qntdVotes)
+        {
+            array[j] = array[j - 1];
+            j--;
+        }
+        array[j] = aux;
+    }
+}
+
 void cleanScreen()
 {
     system(CLEAR);

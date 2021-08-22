@@ -36,14 +36,15 @@ int removeFromTree(Node **, Info *);
 void next(Node **, Node *);
 void inOrder(Node *);
 int treeIsEmpty(Node *);
-void freeTree(Node *);
-Info checkWinner(Node *);
 void resetData(Node **root);
+int getNumberOfNodes(Node *);
+void freeTree(Node *);
 
 // info about people
 Info *addNewPerson();
-void printParcial(Node *);
 
 // extra functions
+void copyTreeToArray(Node *, Info *, int *);
+void sortArrayByNumberOfVotes(Info *, int);
 void cleanScreen();
 void pauseExecution();
